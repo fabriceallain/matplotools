@@ -159,7 +159,7 @@ def main():
                              join=config["joinpoint"], plot_type="box")
     elif args.plot_type == "gridpoint":
         grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                             col=args.col, join=args.joinpoint,
+                             col=args.col, join=config["joinpoint"],
                              plot_type="point")
     elif args.plot_type == "violin":
         # TODO check which one is discrete var
