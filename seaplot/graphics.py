@@ -27,7 +27,7 @@ def basic_plot(data_dict, col1=0, col2=1):
     """
     columns = zip(*data_dict['content'])
 
-    plt.plot(columns[col1], columns[col2], aplha=ALPHA)
+    plt.plot(columns[col1], columns[col2], aplha=0.5)
 
     return
 
@@ -45,7 +45,7 @@ def barv_plot(data_dict, colx=0, coly=1, width=0.25, n_plot=0, label=None):
 
     ax = plt.subplot(111)
     rect = plt.bar(x + (n_plot * width), columns[coly], width=width,
-                   alpha=ALPHA,
+                   alpha=0.5,
                    label=label, color=plt.rcParams['axes.color_cycle'][n_plot])
     plt.xticks(x + ((n_plot + 1) * width) / 2., columns[colx], rotation=45, size='x-small')
 

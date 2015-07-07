@@ -4,7 +4,6 @@
 
 import re
 import os
-import sys
 import argparse
 import numpy as np
 import logging
@@ -60,7 +59,6 @@ def print_msg(content, desc, strformat=True):
 def out_init(outpath=None, progname='', desc=''):
     """
     Init log file
-    :param logpath:
     :param progname: docstring
     :param desc:
     :return:
@@ -195,6 +193,21 @@ def cart_dist(x, y):
     return np.sqrt(sum(np.power(x - y, 2)))
 
 
+def check_dict(indict):
+    for key in indict:
+        value = indict[key]
+        if re.search("true", value, re.I) or \
+                re.search("false", value, re.I):
+            indict[key] = str2bool(indict[key])
+        elif re.search("none", value, re.I):
+            indict[key] = None
+        elif re.search("\d+\.\d+", value):
+            indict[key] = float(value)
+        elif re.search("\d+", value):
+            indict[key] = int(value)
+    return indict
+
+
 #                          Matplotlib functions                                #
 # ---------------------------------------------------------------------------- #
 def tickrot(axes, figure, rotype='horizontal', x=True, y=True):
@@ -223,7 +236,7 @@ def tickmin(pandata, ntick=10, shift=0):
     """
     yticks = pandata.index + shift
     keptticks = pandata.index[::(len(pandata.index) // int(ntick))]
-    yticks = [ _ if _ in keptticks else '' for _ in yticks]
+    yticks = [_ if _ in keptticks else '' for _ in yticks]
     # If shift != 0, need to initialize first value of ticks
     yticks[0] = min(pandata.index) + shift
 
@@ -249,7 +262,7 @@ def conf_load(conf_path):
     conf_dict = {}
 
     for param in config.sections():
-        conf_dict[param] = dict(config.items(param))
+        conf_dict[param] = check_dict(dict(config.items(param)))
 
     return conf_dict
 

@@ -190,8 +190,8 @@ def main():
                              xlim=args.xlim)
     elif args.plot_type == "gridkdejoin":
         grid = sns.FacetGrid(data, col=args.col, size=4,
-                             row=args.row,
-                             hue=args.hue)
+                             row=args.row, sharex=config["sharex"],
+                             sharey=config["sharey"], hue=args.hue)
         grid.map(sns.kdeplot, args.x, args.y)
 
     if grid:
