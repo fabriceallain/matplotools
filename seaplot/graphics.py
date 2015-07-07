@@ -115,7 +115,7 @@ def sns_facetgrid(dataframe, x, config, kind="hist", y=None, hue=None, col=None,
 
     if kind == "kde":
         log.debug("Kdeplot on array below:\n %s" % dataframe[x].head())
-        grid.map(sns.kdeplot, x, shade=str2bool(config["shade"]))
+        grid.map(sns.kdeplot, x, shade=config["shade"])
 
     grid.add_legend()
     grid.fig.tight_layout()

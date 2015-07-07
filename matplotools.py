@@ -185,7 +185,7 @@ def main():
                              hue=args.hue)
         grid.map(plt.scatter, args.x, args.y)
     elif args.plot_type == "gridkde":
-        grid = sns_facetgrid(data, args.x, config, kind=args.plot_type,
+        grid = sns_facetgrid(data, args.x, config, kind="kde",
                              y=args.y, hue=args.hue, col=args.col, row=args.row,
                              xlim=args.xlim)
     elif args.plot_type == "gridkdejoin":
