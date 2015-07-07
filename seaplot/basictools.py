@@ -4,6 +4,7 @@
 
 import re
 import os
+import sys
 import argparse
 import numpy as np
 import logging
@@ -270,3 +271,17 @@ def setup_logging(path, outdir=None, default_level=logging.INFO):
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=default_level)
+
+
+def update_conf(config, newconfpath):
+    """
+    Update config dict with new config file
+    :param config:
+    :param newconfpath:
+    :return:
+    """
+    newconfig = conf_load(newconfpath)
+    for section in config.keys():
+        if section in newconfig:
+            config[section].update(newconfig[section])
+    return newconfig

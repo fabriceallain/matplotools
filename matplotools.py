@@ -29,6 +29,9 @@ from os import makedirs
 from os.path import exists
 
 
+log = logging.getLogger(os.path.basename(__file__))
+
+
 #                                 Main                                         #
 # ---------------------------------------------------------------------------- #
 def settings(desc=None):
@@ -95,7 +98,7 @@ def main():
 
     setup_logging('%s/seaplot/logging.json' % progdir,
                   outdir=os.path.dirname(args.output))
-    log = logging.getLogger('%s' % args.plot_type.capitalize())
+
     log.info(out_init(progname=__doc__, desc='%s' % args.plot_type))
     log.info("""{plot} plot settings:
       x: {x}
@@ -109,14 +112,12 @@ def main():
     try:
         # Load default configuration file
         config = conf_load("%s/%s.conf" % (progdir, progname))
-        newconfig = conf_load(args.conf_file)
-        for section in config.keys():
-            if section in newconfig:
-                config[section].update(newconfig[section])
-        # Load configuration file given
     except AssertionError:
         sys.exit("No valid configuration file found. Please check if default "
                  "file in %s directory exist !" % progname)
+    if args.conf_file:
+        config = update_conf(config, args.conf_file)
+
     config = config['matplotools parameters']
 
     # -------------------------------- Input --------------------------------- #
