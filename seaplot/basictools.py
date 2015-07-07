@@ -236,25 +236,14 @@ def tickmin(pandata, ntick=10, shift=0):
 
 #                          Configuration file                                  #
 # ---------------------------------------------------------------------------- #
-def safeconfig_load(confpath):
-    """
-    Load config file
-    :param confpath: path of configuration file
-    :return: SafeConfigParser object
-    """
-    config = SafeConfigParser()
-    config.read(confpath)
-
-    return config
-
-
 def conf_load(conf_path):
     """
     Load configuration file
     :param conf_path:
     :return: dict parameters
     """
-    conf = safeconfig_load(conf_path)
+    conf_pars = SafeConfigParser()
+    conf = conf_pars.read(conf_path)
 
     conf_dict = {}
 
