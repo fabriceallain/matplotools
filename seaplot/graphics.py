@@ -107,8 +107,8 @@ def sns_facetgrid(dataframe, x, config, kind="hist", y=None, hue=None, col=None,
                   row=None, xlim=None):
     xlim = [int(n) for n in xlim.split()] if xlim else None
     col_wrap = int(config["col_wrap"]) if col else None
-    sharex = True if (row and not col) else False
-    sharey = True if (col and not row) else False
+    sharex = config["sharex"]
+    sharey = config["sharey"]
     grid = sns.FacetGrid(dataframe, col=col, xlim=xlim, size=4, row=row,
                          hue=hue, col_wrap=col_wrap, sharex=sharex,
                          sharey=sharey)
