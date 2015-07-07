@@ -121,30 +121,28 @@ def main():
     config = config['matplotools parameters']
 
     # -------------------------------- Input --------------------------------- #
-    if str2bool(config['debug']):
-        log.info("Starting debug mode")
-        data = sns.load_dataset("tips")
-    else:
-        log.info("Loading Data from %s" % args.file)
-        data = pd.read_table(args.file, sep=',')
-        if args.select:
-            log.info("Filtering rows using selection string")
-            data = io.subdata(data, args.select)
+    log.info("Loading Data from %s" % args.file)
+    data = pd.read_table(args.file, sep=',')
 
-    nxax = len(data[args.x].unique())
-    if nxax <= 1:
+    if args.select:
+        log.info("Filtering rows using selection string")
+        data = io.subdata(data, args.select)
+
+    if len(data[args.x].unique()) <= 1:
         log.error("Not enough unique values in %s axis !" % args.x)
         exit("Change x axis !")
     else:
-        log.info("%d unique values in %s axis" % (nxax, args.x))
+        log.info("%d unique values in %s axis" % (len(data[args.x].unique()), args.x))
+
     if args.y:
-        nyay = len(data[args.y].unique())
         if len(data[args.y].unique()) <= 1:
             log.error("Not enough unique values in %s axis !" % args.y)
             exit("Change y axis !")
         else:
-            log.info("%d unique values in %s axis" % (nyay, args.y))
+            log.info("%d unique values in %s axis" % (len(data[args.y].unique()),
+                                                      args.y))
 
+    # -------------------------------- Plot ---------------------------------- #
     if args.plot_type == "seabar":
         g = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
                           col=args.col, row=args.row,
@@ -213,9 +211,6 @@ def main():
         grid = sns_facetgrid(data, args.x, config, kind=args.plot_type,
                              y=args.y, hue=args.hue, col=args.col, row=args.row,
                              xlim=args.xlim)
-
-    # if args.xrot:
-    #     plt.xticks(rotation=args.xrot)
 
     plt.savefig(args.output, bbox_inches='tight')
 
