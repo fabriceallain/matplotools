@@ -123,6 +123,7 @@ def main():
     # -------------------------------- Input --------------------------------- #
     log.info("Loading Data from %s" % args.file)
     data = pd.read_table(args.file, sep=',')
+    grid=None
 
     if args.select:
         log.info("Filtering rows using selection string")
@@ -142,75 +143,57 @@ def main():
             log.info("%d unique values in %s axis" % (len(data[args.y].unique()),
                                                       args.y))
 
+    if args.xlim:
+        xlim = [int(n) for n in args.xlim.split()]
+    else:
+        xlim = None
+
     # -------------------------------- Plot ---------------------------------- #
     if args.plot_type == "seabar":
-        g = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                          col=args.col, row=args.row,
-                          plot_type="bar", join=config["joinpoint"])
-        g.fig.tight_layout()
-
+        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
+                             col=args.col, row=args.row,
+                             plot_type="bar", join=config["joinpoint"])
     elif args.plot_type == "seabox":
-        g = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue, row=args.row,
-                          col=args.col, join=config["joinpoint"],
-                          plot_type="box")
-        g.fig.tight_layout()
+        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
+                             row=args.row, col=args.col,
+                             join=config["joinpoint"], plot_type="box")
     elif args.plot_type == "seapoint":
         # TODO: pb avec seapoint !
-        g = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                          col=args.col, join=args.joinpoint,
-                          plot_type="point")
-        g.fig.tight_layout()
+        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
+                             col=args.col, join=args.joinpoint,
+                             plot_type="point")
     elif args.plot_type == "seaviolin":
         # TODO verifier lequel des deux est la variable discrete. Elle doit
         # etre fournit en deuxieme argument !
-        g = sns.violinplot(data[args.y], data[args.x],
-                           hue=args.col, scale_hue=False)
-        g.fig.tight_layout()
+        grid = sns.violinplot(data[args.y], data[args.x], hue=args.col,
+                              scale_hue=False)
     elif args.plot_type == "seafacetviolin":
-
-        if args.xlim:
-            xlim = [int(n) for n in args.xlim.split()]
-        else:
-            xlim = None
-
-        g = sns.FacetGrid(data, col=args.col,
+        grid = sns.FacetGrid(data, col=args.col,
                              xlim=xlim, size=4,
                              row=args.row,
                              hue=args.hue)
-        g.map(sns.violinplot, args.x, args.y)
-        g.fig.tight_layout()
+        grid.map(sns.violinplot, args.x, args.y)
     elif args.plot_type == "facethist":
         # Compare number of observations for each distribution, if uneven =>
         # normed = True (See seaborn hist)
-        if args.xlim:
-            xlim = [int(n) for n in args.xlim.split()]
-        else:
-            xlim = None
-
         grid = sns.FacetGrid(data, col=args.col,
                              xlim=xlim, size=5, sharey=False, sharex=False,
                              row=args.row,
                              hue=args.hue)
-
         grid.map(sns.distplot, args.x, hist_kws=dict(alpha=0.5))
-        grid.fig.tight_layout()
-        grid.add_legend()
-        # plt.hist(data[args.x])
-        # plt.title(args.title)
-        # plt.xlabel(args.x)
-        # sns.distplot(data[arguments.x], 100, axlabel=arguments.x.capitalize())
-
     elif args.plot_type == "facetscatterplot":
         grid = sns.FacetGrid(data, col=args.col, size=4,
                              row=args.row,
                              hue=args.hue)
         grid.map(plt.scatter, args.x, args.y)
-        grid.fig.tight_layout()
-        grid.add_legend()
     elif args.plot_type == "kde":
         grid = sns_facetgrid(data, args.x, config, kind=args.plot_type,
                              y=args.y, hue=args.hue, col=args.col, row=args.row,
                              xlim=args.xlim)
+
+    if grid:
+        grid.fig.tight_layout()
+        grid.add_legend()
 
     plt.savefig(args.output, bbox_inches='tight')
 
