@@ -42,7 +42,7 @@ def settings(desc=None):
     argparser = argparse.ArgumentParser(description=desc,
                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    argparser.add_argument("plot_type", default="facetbar", help="Type of plot")
+    argparser.add_argument("plot_type", default=None, help="Type of plot")
     argparser.add_argument("file", metavar="FILE",
                            help="input file (.dat)")
     argparser.add_argument("x", help="index x col")
@@ -123,7 +123,7 @@ def main():
     # -------------------------------- Input --------------------------------- #
     log.info("Loading Data from %s" % args.file)
     data = pd.read_table(args.file, sep=',')
-    grid=None
+    grid = None
 
     if args.select:
         log.info("Filtering rows using selection string")
@@ -149,31 +149,29 @@ def main():
         xlim = None
 
     # -------------------------------- Plot ---------------------------------- #
-    if args.plot_type == "seabar":
+    if args.plot_type == "gridbar":
         grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
                              col=args.col, row=args.row,
                              plot_type="bar", join=config["joinpoint"])
-    elif args.plot_type == "seabox":
+    elif args.plot_type == "gridbox":
         grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
                              row=args.row, col=args.col,
                              join=config["joinpoint"], plot_type="box")
-    elif args.plot_type == "seapoint":
-        # TODO: pb avec seapoint !
+    elif args.plot_type == "gridpoint":
         grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
                              col=args.col, join=args.joinpoint,
                              plot_type="point")
-    elif args.plot_type == "seaviolin":
-        # TODO verifier lequel des deux est la variable discrete. Elle doit
-        # etre fournit en deuxieme argument !
+    elif args.plot_type == "violin":
+        # TODO check which one is discrete var
         grid = sns.violinplot(data[args.y], data[args.x], hue=args.col,
                               scale_hue=False)
-    elif args.plot_type == "seafacetviolin":
+    elif args.plot_type == "gridviolin":
         grid = sns.FacetGrid(data, col=args.col,
                              xlim=xlim, size=4,
                              row=args.row,
                              hue=args.hue)
         grid.map(sns.violinplot, args.x, args.y)
-    elif args.plot_type == "facethist":
+    elif args.plot_type == "gridhist":
         # Compare number of observations for each distribution, if uneven =>
         # normed = True (See seaborn hist)
         grid = sns.FacetGrid(data, col=args.col,
@@ -181,15 +179,20 @@ def main():
                              row=args.row,
                              hue=args.hue)
         grid.map(sns.distplot, args.x, hist_kws=dict(alpha=0.5))
-    elif args.plot_type == "facetscatterplot":
+    elif args.plot_type == "gridscatterplot":
         grid = sns.FacetGrid(data, col=args.col, size=4,
                              row=args.row,
                              hue=args.hue)
         grid.map(plt.scatter, args.x, args.y)
-    elif args.plot_type == "kde":
+    elif args.plot_type == "gridkde":
         grid = sns_facetgrid(data, args.x, config, kind=args.plot_type,
                              y=args.y, hue=args.hue, col=args.col, row=args.row,
                              xlim=args.xlim)
+    elif args.plot_type == "gridkdejoin":
+        grid = sns.FacetGrid(data, col=args.col, size=4,
+                             row=args.row,
+                             hue=args.hue)
+        grid.map(sns.kdeplot, args.x, args.y)
 
     if grid:
         grid.fig.tight_layout()

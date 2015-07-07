@@ -243,13 +243,13 @@ def conf_load(conf_path):
     :param conf_path:
     :return: dict parameters
     """
-    conf_pars = SafeConfigParser()
-    conf = conf_pars.read(conf_path)
+    config = SafeConfigParser()
+    config.read(conf_path)
 
     conf_dict = {}
 
-    for param in conf.sections():
-        conf_dict[param] = dict(conf.items(param))
+    for param in config.sections():
+        conf_dict[param] = dict(config.items(param))
 
     return conf_dict
 
