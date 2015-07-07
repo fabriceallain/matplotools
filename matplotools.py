@@ -29,9 +29,6 @@ from os import makedirs
 from os.path import exists
 
 
-log = logging.getLogger(os.path.basename(__file__))
-
-
 #                                 Main                                         #
 # ---------------------------------------------------------------------------- #
 def settings(desc=None):
@@ -52,7 +49,7 @@ def settings(desc=None):
 
     # Options
     argparser.add_argument("-c", "--conf", dest="conf_file",
-                           default='matplotools.conf', help="configuration file")
+                           default=None, help="configuration file")
     argparser.add_argument("-o", "--output", dest="output",
                            default='plot.png', help="output file")
     argparser.add_argument("-t", "--title", dest="title",
@@ -94,13 +91,12 @@ def main():
     args, prog = settings(u"Script to generate seaborn plots")
 
     progname = prog[:-3]
-    progdir = os.path.dirname(os.path.realpath(__file__))
-
-    setup_logging('%s/seaplot/logging.json' % progdir,
+    progdir = os.path.dirname(os.path.abspath(__file__))
+    setup_logging('%s/logging.json' % progdir,
                   outdir=os.path.dirname(args.output))
-
-    log.info(out_init(progname=__doc__, desc='%s' % args.plot_type))
-    log.info("""{plot} plot settings:
+    logger = logging.getLogger()
+    logger.info(out_init(progname=__doc__, desc='%s' % args.plot_type))
+    logger.info("""{plot} plot settings:
       x: {x}
       y: {y}
     hue: {hue}
@@ -108,39 +104,43 @@ def main():
     row: {row}\
 """.format(plot=args.plot_type, x=args.x, y=args.y, col=args.col, hue=args.hue,
            row=args.row))
-
     try:
         # Load default configuration file
         config = conf_load("%s/%s.conf" % (progdir, progname))
+        logger.info("Loading default configuration file (%s/%s.conf)" % (
+            progdir, progname))
+        logger.debug(json.dumps(config, indent=4))
     except AssertionError:
         sys.exit("No valid configuration file found. Please check if default "
                  "file in %s directory exist !" % progname)
     if args.conf_file:
         config = update_conf(config, args.conf_file)
+        logger.info("Update configuration dict")
+        logger.debug(json.dumps(config, indent=4))
 
     config = config['matplotools parameters']
 
     # -------------------------------- Input --------------------------------- #
-    log.info("Loading Data from %s" % args.file)
+    logger.info("Loading Data from %s" % args.file)
     data = pd.read_table(args.file, sep=',')
     grid = None
 
     if args.select:
-        log.info("Filtering rows using selection string")
+        logger.info("Filtering rows using selection string")
         data = io.subdata(data, args.select)
 
     if len(data[args.x].unique()) <= 1:
-        log.error("Not enough unique values in %s axis !" % args.x)
+        logger.error("Not enough unique values in %s axis !" % args.x)
         exit("Change x axis !")
     else:
-        log.info("%d unique values in %s axis" % (len(data[args.x].unique()), args.x))
+        logger.info("%d unique values in %s axis" % (len(data[args.x].unique()), args.x))
 
     if args.y:
         if len(data[args.y].unique()) <= 1:
-            log.error("Not enough unique values in %s axis !" % args.y)
+            logger.error("Not enough unique values in %s axis !" % args.y)
             exit("Change y axis !")
         else:
-            log.info("%d unique values in %s axis" % (len(data[args.y].unique()),
+            logger.info("%d unique values in %s axis" % (len(data[args.y].unique()),
                                                       args.y))
 
     if args.xlim:
