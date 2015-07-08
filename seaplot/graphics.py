@@ -64,7 +64,7 @@ def sns_bar(dataframe, x, y, hue=None):
     return sns.factorplot(x, y, data=dataframe, hue=hue, kind="bar")
 
 
-def sns_facetplot(dataframe, x, y, hue=None, col=None, plot_type="b",
+def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
                   col_wrap=2, join=True, row=None):
 
     if hue:
@@ -74,16 +74,15 @@ def sns_facetplot(dataframe, x, y, hue=None, col=None, plot_type="b",
     else:
         pal_dict = None
     if col:
-        g = sns.factorplot(x, y, hue=hue, data=dataframe, col=col, join=join,
-                           kind=plot_type, col_wrap=col_wrap,
-                           palette=pal_dict, row=row, legend_out=False)
+        grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
+                              kind=plot_type, col_wrap=col_wrap,
+                              sharey=config["sharey"], sharex=config["sharex"],
+                              palette=pal_dict, row=row, legend=False)
     else:
-        g = sns.factorplot(x, y, hue=hue, data=dataframe, join=join, row=row,
-                           kind=plot_type)
-
-    g.add_legend()
-
-    return g
+        grid = sns.factorplot(x, y, hue=hue, data=dataframe, row=row,
+                              kind=plot_type, legend=False,
+                              sharex=config["sharex"], sharey=config["sharey"])
+    return grid
 
 
 def sns_pairplot(dataframe, x, y, hue=None, plot_type="b"):

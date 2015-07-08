@@ -141,7 +141,7 @@ def main():
             exit("Change y axis !")
         else:
             logger.info("%d unique values in %s axis" % (len(data[args.y].unique()),
-                                                      args.y))
+                                                         args.y))
 
     if args.xlim:
         xlim = [int(n) for n in args.xlim.split()]
@@ -150,17 +150,17 @@ def main():
 
     # -------------------------------- Plot ---------------------------------- #
     if args.plot_type == "gridbar":
-        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                             col=args.col, row=args.row,
+        grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
+                             hue=args.hue, col=args.col, row=args.row,
                              plot_type="bar", join=config["joinpoint"])
     elif args.plot_type == "gridbox":
-        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                             row=args.row, col=args.col,
+        grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
+                             hue=args.hue, row=args.row, col=args.col,
                              join=config["joinpoint"], plot_type="box")
     elif args.plot_type == "gridpoint":
-        grid = sns_facetplot(data, x=args.x, y=args.y, hue=args.hue,
-                             col=args.col, join=config["joinpoint"],
-                             plot_type="point")
+        grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
+                             hue=args.hue, col=args.col,
+                             join=config["joinpoint"], plot_type="point")
     elif args.plot_type == "violin":
         # TODO check which one is discrete var
         grid = sns.violinplot(data[args.y], data[args.x], hue=args.col,
@@ -195,8 +195,15 @@ def main():
         grid.map(sns.kdeplot, args.x, args.y)
 
     if grid:
-        grid.fig.tight_layout()
         grid.add_legend()
+        if config["xrot"]:
+            for ax in grid.axes:
+                _ = plt.setp(ax.get_xticklabels(), rotation=config["xrot"])
+        grid.fig.tight_layout()
+        grid.fig.canvas.draw()
+    elif config["xrot"]:
+        plt.xticks(rotation=config["xrot"])
+        plt.tight_layout()
 
     plt.savefig(args.output, bbox_inches='tight')
 
