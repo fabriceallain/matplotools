@@ -196,14 +196,17 @@ def main():
 
     if grid:
         grid.add_legend()
-        if config["xrot"]:
-            for ax in grid.axes:
+        if config["xrot"] and len(grid.axes) > 1:
+            for ax in grid.axes.flat:
                 _ = plt.setp(ax.get_xticklabels(), rotation=config["xrot"])
+        else:
+            grid.set_xticklabels(rotation=config["xrot"])
         grid.fig.tight_layout()
         grid.fig.canvas.draw()
     elif config["xrot"]:
         plt.xticks(rotation=config["xrot"])
         plt.tight_layout()
+        plt.draw()
 
     plt.savefig(args.output, bbox_inches='tight')
 

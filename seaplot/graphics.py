@@ -77,10 +77,10 @@ def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
                               kind=plot_type, col_wrap=col_wrap,
                               sharey=config["sharey"], sharex=config["sharex"],
-                              palette=pal_dict, row=row, legend=False)
+                              palette=pal_dict, row=row, legend_out=False)
     else:
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, row=row,
-                              kind=plot_type, legend=False,
+                              kind=plot_type, legend_out=False,
                               sharex=config["sharex"], sharey=config["sharey"])
     return grid
 
