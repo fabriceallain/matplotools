@@ -11,8 +11,6 @@
 # TODO: pour les options spécifiques a certains graphes, faire des classes
 # qui etendent PlotSettings
 # TODO: class Plot -> contient les méthodes save, show, ...
-# TODO: class AccuracyPlot(Plot)
-# TODO: class PrecisionPlot(Plot)
 # TODO: utiliser parsers aria pour faire un fichier d'options du graphe en xml ?
 
 
@@ -68,6 +66,9 @@ def settings(desc=None):
                            help="extra field on the same plot (poinplot)")
     argparser.add_argument("--xlim", dest='xlim', default=0,
                            help="x lim")
+    argparser.add_argument("--xrot", dest='xrot', action='store_true',
+                           default=False,
+                           help="Rotate xtick labels")
 
     options = argparser.parse_args()
 
@@ -120,6 +121,9 @@ def main():
 
     config = config['matplotools parameters']
 
+    sns.set_style(config["style"])
+    sns.set_context(config["context"])
+
     # -------------------------------- Input --------------------------------- #
     logger.info("Loading Data from %s" % args.file)
     data = pd.read_table(args.file, sep=',')
@@ -159,7 +163,7 @@ def main():
                              join=config["joinpoint"], plot_type="box")
     elif args.plot_type == "gridpoint":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
-                             hue=args.hue, col=args.col,
+                             hue=args.hue, row=args.row, col=args.col,
                              join=config["joinpoint"], plot_type="point")
     elif args.plot_type == "violin":
         # TODO check which one is discrete var
@@ -167,9 +171,8 @@ def main():
                               scale_hue=False)
     elif args.plot_type == "gridviolin":
         grid = sns.FacetGrid(data, col=args.col,
-                             xlim=xlim, size=4,
-                             row=args.row,
-                             hue=args.hue)
+                             xlim=xlim, size=5, sharex=config["sharex"],
+                             row=args.row, sharey=config["sharey"])
         grid.map(sns.violinplot, args.x, args.y)
     elif args.plot_type == "gridhist":
         # Compare number of observations for each distribution, if uneven =>
@@ -183,8 +186,9 @@ def main():
         grid = sns.FacetGrid(data, col=args.col, size=4,
                              row=args.row,
                              hue=args.hue)
-        grid.map(plt.scatter, args.x, args.y)
+        grid.map(plt.scatter, x=args.x, y=args.y)
     elif args.plot_type == "gridkde":
+        logger.info("Drawing KDE plot on grid")
         grid = sns_facetgrid(data, args.x, config, kind="kde",
                              y=args.y, hue=args.hue, col=args.col, row=args.row,
                              xlim=args.xlim)
@@ -193,24 +197,26 @@ def main():
                              row=args.row, sharex=config["sharex"],
                              sharey=config["sharey"], hue=args.hue)
         grid.map(sns.kdeplot, args.x, args.y)
+    else:
+        logger.error("%s plot type isn't supported" % args.plot_type)
 
     if grid:
-        grid.add_legend()
-        if config["xrot"] and len(grid.axes) > 1:
+        if args.hue:
+            grid.add_legend()
+        # grid.fig.tight_layout()
+        if config["xrot"] and len(grid.axes) > 1 and args.xrot:
             for ax in grid.axes.flat:
                 _ = plt.setp(ax.get_xticklabels(), rotation=config["xrot"])
         else:
             grid.set_xticklabels(rotation=config["xrot"])
-        grid.fig.tight_layout()
         grid.fig.canvas.draw()
-    elif config["xrot"]:
+    elif config["xrot"] and args.xrot:
         plt.xticks(rotation=config["xrot"])
         plt.tight_layout()
         plt.draw()
 
+    logger.info("Saving plot in %s" % args.output)
     plt.savefig(args.output, bbox_inches='tight')
-
-    return data
 
 
 if __name__ == '__main__':

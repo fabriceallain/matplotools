@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import numpy as np
 import logging
 
 log = logging.getLogger("IO")
@@ -27,6 +28,11 @@ def sns_data_eq(dataframe, sel=None, selec=None):
                     sel, selec))
                 sub = dataframe[dataframe[sel].isin(selec)]
             else:
+                log.info("Selection: %s =  %s" % (sel, selec))
+                if dataframe[sel].dtype == np.int64:
+                    selec = int(selec)
+                elif dataframe[sel].dtype == np.float64:
+                    selec = float(selec)
                 sub = dataframe.loc[dataframe[sel] == selec]
     except AssertionError:
         log.error("Wrong selection for these data.")

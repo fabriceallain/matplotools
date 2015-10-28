@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
 import logging
 from basictools import *
+import seaborn as sns
 
 
 log = logging.getLogger("Plot")
@@ -65,22 +65,24 @@ def sns_bar(dataframe, x, y, hue=None):
 
 
 def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
-                  col_wrap=2, join=True, row=None):
+                  col_wrap=None, join=True, row=None):
 
     if hue:
         pal_keys = dataframe[hue].unique().tolist()
-        pal_val = sns.color_palette("hls", len(pal_keys))
-        pal_dict = dict(zip(pal_keys, pal_val))
+        # pal_val = sns.color_palette("hls", len(pal_keys))
+        # pal_dict = dict(zip(pal_keys, pal_val))
+        pal_dict = None
     else:
         pal_dict = None
     if col:
+        # col_wrap = int(config["col_wrap"]) if col and not row else None
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
-                              kind=plot_type, col_wrap=col_wrap,
+                              kind=plot_type, col_wrap=col_wrap, size=5,
                               sharey=config["sharey"], sharex=config["sharex"],
-                              palette=pal_dict, row=row, legend_out=False)
+                              palette=pal_dict, row=row, legend=False)
     else:
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, row=row,
-                              kind=plot_type, legend_out=False,
+                              kind=plot_type, legend=False, size=5,
                               sharex=config["sharex"], sharey=config["sharey"])
     return grid
 
@@ -105,19 +107,17 @@ def sns_pairplot(dataframe, x, y, hue=None, plot_type="b"):
 def sns_facetgrid(dataframe, x, config, kind="hist", y=None, hue=None, col=None,
                   row=None, xlim=None):
     xlim = [int(n) for n in xlim.split()] if xlim else None
-    col_wrap = int(config["col_wrap"]) if col else None
+    col_wrap = int(config["col_wrap"]) if col and not row else None
     sharex = config["sharex"]
     sharey = config["sharey"]
     grid = sns.FacetGrid(dataframe, col=col, xlim=xlim, size=4, row=row,
                          hue=hue, col_wrap=col_wrap, sharex=sharex,
-                         sharey=sharey)
+                         sharey=sharey, legend_out=True, aspect=1.5)
 
     if kind == "kde":
         log.debug("Kdeplot on array below:\n %s" % dataframe[x].head())
         grid.map(sns.kdeplot, x, shade=config["shade"])
 
-    grid.add_legend()
-    grid.fig.tight_layout()
     return grid
 
 
