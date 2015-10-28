@@ -207,7 +207,7 @@ def main():
         if config["xrot"] and len(grid.axes) > 1 and args.xrot:
             for ax in grid.axes.flat:
                 _ = plt.setp(ax.get_xticklabels(), rotation=config["xrot"])
-        else:
+        elif args.xrot:
             grid.set_xticklabels(rotation=config["xrot"])
         grid.fig.canvas.draw()
     elif config["xrot"] and args.xrot:
