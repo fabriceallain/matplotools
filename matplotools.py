@@ -167,7 +167,8 @@ def main():
     elif args.plot_type == "gridbox":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
                              hue=args.hue, row=args.row, col=args.col,
-                             join=config["joinpoint"], plot_type="box")
+                             join=config["joinpoint"], order=args.order,
+                             plot_type="box")
     elif args.plot_type == "gridpoint":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
                              hue=args.hue, row=args.row, col=args.col,
