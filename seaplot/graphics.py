@@ -65,8 +65,16 @@ def sns_bar(dataframe, x, y, hue=None):
 
 
 def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
-                  col_wrap=None, join=True, row=None):
+                  col_wrap=None, join=True, row=None, errbar=True,
+                  order=None):
 
+    xorder = dataframe.sort_values(by=order)[x].unique() if order else sorted(
+        dataframe[x].unique())
+    kw = {}
+
+    if not errbar and plot_type in ("bar", "point"):
+        log.info("Draw plot without err bar")
+        kw['ci'] = None
     if hue:
         pal_keys = dataframe[hue].unique().tolist()
         # pal_val = sns.color_palette("hls", len(pal_keys))
@@ -78,12 +86,15 @@ def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
         # col_wrap = int(config["col_wrap"]) if col and not row else None
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
                               kind=plot_type, col_wrap=col_wrap, size=5,
+                              order=xorder,
                               sharey=config["sharey"], sharex=config["sharex"],
-                              palette=pal_dict, row=row, legend=False)
+                              palette=pal_dict, row=row, **kw)
     else:
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, row=row,
-                              kind=plot_type, legend=False, size=5,
-                              sharex=config["sharex"], sharey=config["sharey"])
+                              kind=plot_type, size=5,
+                              order=xorder,
+                              sharex=config["sharex"],
+                              sharey=config["sharey"], **kw)
     return grid
 
 

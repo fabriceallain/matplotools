@@ -63,6 +63,6 @@ def subdata(dataframe, selec):
 
     if dataframe.empty:
         log.error("Dataframe selected is empty !")
-        exit("Check selection criteria !")
+        sys.exit("Check selection criteria !")
 
     return dataframe

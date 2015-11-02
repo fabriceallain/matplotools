@@ -20,6 +20,7 @@ if sys.version_info < (2, 7):
     sys.exit("This program need Python version 2.7 !")
 
 import pandas as pd
+import numpy as np
 import seaplot.iodata as io
 from seaplot.graphics import *
 from seaplot.basictools import *
@@ -69,6 +70,11 @@ def settings(desc=None):
     argparser.add_argument("--xrot", dest='xrot', action='store_true',
                            default=False,
                            help="Rotate xtick labels")
+    argparser.add_argument("--noerrbar", dest='errbar', action='store_false',
+                           default=True,
+                           help="Don't draw errors bars")
+    argparser.add_argument("--order", dest='order', default=None,
+                           help="Level used to order data")
 
     options = argparser.parse_args()
 
@@ -156,7 +162,8 @@ def main():
     if args.plot_type == "gridbar":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
                              hue=args.hue, col=args.col, row=args.row,
-                             plot_type="bar", join=config["joinpoint"])
+                             plot_type="bar", join=config["joinpoint"],
+                             errbar=args.errbar, order=args.order)
     elif args.plot_type == "gridbox":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
                              hue=args.hue, row=args.row, col=args.col,
@@ -164,13 +171,14 @@ def main():
     elif args.plot_type == "gridpoint":
         grid = sns_facetplot(data, x=args.x, y=args.y, config=config,
                              hue=args.hue, row=args.row, col=args.col,
-                             join=config["joinpoint"], plot_type="point")
+                             join=config["joinpoint"], plot_type="point",
+                             errbar=args.errbar)
     elif args.plot_type == "violin":
         # TODO check which one is discrete var
-        grid = sns.violinplot(data[args.y], data[args.x], hue=args.col,
+        grid = sns.violinplot(data[args.y], data[args.x], hue=args.hue,
                               scale_hue=False)
     elif args.plot_type == "gridviolin":
-        grid = sns.FacetGrid(data, col=args.col,
+        grid = sns.FacetGrid(data, col=args.col, hue=args.hue,
                              xlim=xlim, size=5, sharex=config["sharex"],
                              row=args.row, sharey=config["sharey"])
         grid.map(sns.violinplot, args.x, args.y)
@@ -200,11 +208,14 @@ def main():
     else:
         logger.error("%s plot type isn't supported" % args.plot_type)
 
-    if grid:
-        if args.hue:
-            grid.add_legend()
+    if issubclass(grid.__class__, sns.Grid):
+        # if args.hue and hasattr(grid, "add_legend"):
+        #     grid.add_legend()
         # grid.fig.tight_layout()
-        if config["xrot"] and len(grid.axes) > 1 and args.xrot:
+        if config["xrot"]\
+                and isinstance(grid, np.ndarray) \
+                and len(grid.axes) > 1 \
+                and args.xrot:
             for ax in grid.axes.flat:
                 _ = plt.setp(ax.get_xticklabels(), rotation=config["xrot"])
         elif args.xrot:
@@ -216,7 +227,7 @@ def main():
         plt.draw()
 
     logger.info("Saving plot in %s" % args.output)
-    plt.savefig(args.output, bbox_inches='tight')
+    plt.savefig(args.output, bbox_inches='tight', pad_inches=.5)
 
 
 if __name__ == '__main__':
