@@ -129,6 +129,7 @@ def main():
 
     sns.set_style(config["style"])
     sns.set_context(config["context"])
+    sns.set_palette(config["palette"])
 
     # -------------------------------- Input --------------------------------- #
     logger.info("Loading Data from %s" % args.file)
