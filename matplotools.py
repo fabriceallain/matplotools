@@ -133,6 +133,7 @@ def main():
         logger.info("Filtering rows using selection string")
         data = io.subdata(data, args.select)
 
+    logger.debug("X values :\n%s" % str(data[args.x]))
     if len(data[args.x].unique()) <= 1:
         logger.error("Not enough unique values in %s axis !" % args.x)
         exit("Change x axis !")
@@ -141,6 +142,7 @@ def main():
             len(data[args.x].unique()), args.x))
 
     if args.y:
+        logger.debug("Y values :\n%s" % str(data[args.y]))
         if len(data[args.y].unique()) <= 1:
             logger.error("Not enough unique values in %s axis !" % args.y)
             exit("Change y axis !")
