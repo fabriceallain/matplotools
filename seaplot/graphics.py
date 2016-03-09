@@ -66,8 +66,8 @@ def sns_bar(dataframe, x, y, hue=None):
 
 def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
                   col_wrap=None, join=True, row=None, errbar=True,
-                  order=None):
-
+                  order=None, palette="muted"):
+    sns.set_palette(palette)
     xorder = dataframe.sort_values(by=order)[x].unique() if order else sorted(
         dataframe[x].unique())
     kw = {}
@@ -77,11 +77,11 @@ def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
         kw['ci'] = None
     if hue:
         pal_keys = dataframe[hue].unique().tolist()
-        # pal_val = sns.color_palette("hls", len(pal_keys))
-        # pal_dict = dict(zip(pal_keys, pal_val))
-        pal_dict = None
+        pal_val = sns.color_palette("hls", len(pal_keys))
+        pal_dict = dict(zip(pal_keys, pal_val))
+        # pal_dict = None
     else:
-        pal_dict = None
+        pal_dict = sns.color_palette("hls", len(dataframe[x].unique().tolist()))
     if col:
         # col_wrap = int(config["col_wrap"]) if col and not row else None
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
@@ -116,7 +116,8 @@ def sns_pairplot(dataframe, x, y, hue=None, plot_type="b"):
 
 
 def sns_facetgrid(dataframe, x, config, kind="hist", y=None, hue=None, col=None,
-                  row=None, xlim=None):
+                  row=None, xlim=None, palette="muted"):
+    sns.set_palette(palette)
     xlim = [int(n) for n in xlim.split()] if xlim else None
     col_wrap = int(config["col_wrap"]) if col and not row else None
     sharex = config["sharex"]
@@ -128,6 +129,7 @@ def sns_facetgrid(dataframe, x, config, kind="hist", y=None, hue=None, col=None,
     if kind == "kde":
         log.debug("Kdeplot on array below:\n %s" % dataframe[x].head())
         grid.map(sns.kdeplot, x, shade=config["shade"])
+        grid.add_legend()
 
     return grid
 
