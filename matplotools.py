@@ -127,6 +127,7 @@ def main():
     # -------------------------------- Input --------------------------------- #
     logger.info("Loading Data from %s" % args.file)
     data = pd.read_table(args.file, sep=',')
+    logger.debug(data)
     grid = None
 
     if args.select:
