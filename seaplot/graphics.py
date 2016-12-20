@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import logging
+# import logging
 from basictools import *
 import seaborn as sns
-
+import numpy as np
 
 log = logging.getLogger("Plot")
 
@@ -65,16 +65,26 @@ def sns_bar(dataframe, x, y, hue=None):
 
 
 def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
-                  col_wrap=None, join=True, row=None, errbar=True,
-                  order=None, palette="muted"):
+                  col_wrap=None, join=False, row=None, errbar=True,
+                  sharex=False, sharey=False, order=None, palette="muted",
+                  dodge=False, est="mean"):
     sns.set_palette(palette)
     xorder = dataframe.sort_values(by=order)[x].unique() if order else sorted(
         dataframe[x].unique())
     kw = {}
 
+    if est == "max":
+        from numpy import max
+        est = max
+    else:
+        from numpy import mean
+        est = mean
+
     if not errbar and plot_type in ("bar", "point"):
         log.info("Draw plot without err bar")
         kw['ci'] = None
+    if plot_type == "point":
+        kw['dodge'] = dodge
     if hue:
         pal_keys = dataframe[hue].unique().tolist()
         pal_val = sns.color_palette("hls", len(pal_keys))
@@ -87,14 +97,14 @@ def sns_facetplot(dataframe, x, y, config, hue=None, col=None, plot_type="b",
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, col=col,
                               kind=plot_type, col_wrap=col_wrap, size=5,
                               order=xorder,
-                              sharey=config["sharey"], sharex=config["sharex"],
-                              palette=pal_dict, row=row, **kw)
+                              sharey=sharey, sharex=sharex,
+                              palette=pal_dict, row=row, estimator=est, **kw)
     else:
         grid = sns.factorplot(x, y, hue=hue, data=dataframe, row=row,
                               kind=plot_type, size=5,
                               order=xorder,
-                              sharex=config["sharex"],
-                              sharey=config["sharey"], **kw)
+                              sharex=sharex,
+                              sharey=sharey, estimator=est, **kw)
     return grid
 
 
